@@ -1,0 +1,2135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Simbiosis</title>
+<meta name="description" content="Experiencia VR en XR Blocks: los líquenes que todo lo interconectan en el bosque del sur de Valdivia." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&family=Karla:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+/>
+<style>
+  /* Layout: una sola lámina oscura a pantalla completa; el texto se lee como la ficha de campo de un herbario. */
+  :root {
+    --humus: #0b0f0c;
+    --corteza: #151b16;
+    --liquen: #c9d6b0;
+    --liquen-tenue: #8f9b80;
+    --xanthoria: #e39a3b;
+    --red: #8ff5cf;
+    --linea: #2a3428;
+    --f-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+    --f-body: 'Karla', 'Helvetica Neue', Arial, sans-serif;
+    --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    background: var(--humus);
+    color: var(--liquen);
+    font-family: var(--f-body);
+    overscroll-behavior: none;
+  }
+  canvas {
+    display: block;
+  }
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    overflow-y: auto;
+    background:
+      radial-gradient(ellipse 60% 50% at 78% 18%, rgba(143, 245, 207, 0.07), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 12% 90%, rgba(227, 154, 59, 0.08), transparent 70%),
+      var(--humus);
+    padding-inline: 16px;
+    padding-block: calc(env(safe-area-inset-top, 0px) + 28px) calc(env(safe-area-inset-bottom, 0px) + 28px);
+    box-sizing: border-box;
+  }
+  .ficha {
+    max-width: 880px;
+    margin: 0 auto;
+    display: grid;
+    gap: 28px;
+  }
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--xanthoria);
+  }
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: clamp(56px, 11vw, 120px);
+    line-height: 0.9;
+    margin: 6px 0 0;
+    letter-spacing: -0.01em;
+    color: var(--liquen);
+  }
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--red);
+  }
+  .lede {
+    font-family: var(--f-display);
+    font-style: italic;
+    font-size: clamp(20px, 2.6vw, 26px);
+    line-height: 1.35;
+    max-width: 36em;
+    margin: 0;
+    color: var(--liquen);
+    text-wrap: balance;
+  }
+  .momentos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--linea);
+    border-bottom: 1px solid var(--linea);
+  }
+  .momento {
+    padding: 18px 18px 20px 0;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    min-width: 0;
+  }
+  .momento + .momento {
+    border-left: 1px solid var(--linea);
+    padding-left: 18px;
+  }
+  .momento .num {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--liquen-tenue);
+  }
+  .momento h2 {
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: 26px;
+    margin: 0;
+    line-height: 1.05;
+  }
+  .momento h2 span {
+    display: block;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 19px;
+    color: var(--liquen-tenue);
+    margin-top: 2px;
+  }
+  .momento p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--liquen-tenue);
+  }
+  .momento .gesto {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 6px;
+  }
+  .prep {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .prep ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: grid;
+    gap: 10px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .prep li {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .prep li b {
+    font-family: var(--f-mono);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--liquen-tenue);
+    padding-top: 2px;
+  }
+  .mic {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--liquen);
+    cursor: pointer;
+    padding: 14px;
+    border: 1px solid var(--linea);
+    border-radius: 6px;
+    background: var(--corteza);
+  }
+  .mic input {
+    accent-color: var(--red);
+    width: 18px;
+    height: 18px;
+    margin: 1px 0 0;
+    flex: none;
+  }
+  .mic small {
+    display: block;
+    color: var(--liquen-tenue);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  #entrar {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  #entrar .estado {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--liquen-tenue);
+  }
+  /* Botones generados por XR Blocks, reubicados dentro de la ficha */
+  #XRButtonWrapper {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    text-align: left !important;
+  }
+  #XRButtonWrapper h1,
+  #XRButtonWrapper h4 {
+    display: none;
+  }
+  .XRButton {
+    font-family: var(--f-body);
+    font-weight: 600;
+    font-size: 17px;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    padding: 16px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--red);
+    background: var(--red);
+    color: var(--humus);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .XRButton.secundario {
+    background: transparent;
+    color: var(--liquen);
+    border-color: var(--liquen-tenue);
+  }
+  .XRButton:hover {
+    transform: translateY(-1px);
+  }
+  .XRButton:focus-visible,
+  .mic input:focus-visible {
+    outline: 2px solid var(--xanthoria);
+    outline-offset: 3px;
+  }
+  .XRButton:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .XRButtonError {
+    color: var(--xanthoria);
+    font-size: 13px;
+  }
+  .pie {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--liquen-tenue);
+    border-top: 1px solid var(--linea);
+    padding-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+  #hudDesk {
+    position: fixed;
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    z-index: 5;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--liquen-tenue);
+    background: rgba(11, 15, 12, 0.7);
+    border: 1px solid var(--linea);
+    border-radius: 6px;
+    padding: 8px 10px;
+    pointer-events: none;
+  }
+  @media (max-width: 720px) {
+    .momentos,
+    .prep {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .momento + .momento {
+      border-left: 0;
+      border-top: 1px solid var(--linea);
+      padding-left: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .XRButton {
+      transition: none;
+    }
+  }
+</style>
+
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+      "three/": "https://cdn.jsdelivr.net/npm/three@0.186.0/",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/",
+      "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.webgpu.js",
+      "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.tsl.js",
+      "@pmndrs/uikit": "https://cdn.jsdelivr.net/npm/@pmndrs/uikit@1.0.64/dist/index.min.js",
+      "@pmndrs/uikit-pub-sub": "https://cdn.jsdelivr.net/npm/@pmndrs/uikit-pub-sub@1.0.64/dist/index.min.js",
+      "@pmndrs/msdfonts": "https://cdn.jsdelivr.net/npm/@pmndrs/msdfonts@1.0.64/dist/index.min.js",
+      "@preact/signals-core": "https://cdn.jsdelivr.net/npm/@preact/signals-core@1.14.0/dist/signals-core.mjs",
+      "yoga-layout/load": "https://cdn.jsdelivr.net/npm/yoga-layout@3.2.1/dist/src/load.js",
+      "lit": "https://esm.sh/lit@3.3.1",
+      "lit/": "https://esm.sh/lit@3.3.1/",
+      "xrblocks": "https://cdn.jsdelivr.net/npm/xrblocks@0.22.0/build/xrblocks.js",
+      "xrblocks/addons/": "https://cdn.jsdelivr.net/npm/xrblocks@0.22.0/build/addons/"
+    }
+  }
+</script>
+
+</head>
+<body>
+<div id="intro">
+  <div class="ficha">
+    <header>
+      <div class="eyebrow">Experiencia VR · Sur de Valdivia, Región de Los Ríos · 39°49′ S</div>
+      <h1>Simbio<em>sis</em></h1>
+    </header>
+    <p class="lede">
+      Un liquen es un hongo y un alga viviendo como un solo cuerpo. En el bosque lluvioso valdiviano cubren la roca
+      volcánica, la corteza de los coigües y cuelgan de las ramas como barba de viejo. Esta travesía va desde esa
+      primera alianza hasta la red que sostiene el bosque entero.
+    </p>
+
+    <section class="momentos" aria-label="Los tres momentos de la experiencia">
+      <article class="momento">
+        <span class="num">I · ENTRADA · ~2 min</span>
+        <h2>Escuchar el origen<span>Oscuridad y sonido orgánico</span></h2>
+        <p>En la oscuridad aparecen dos organismos: un hongo y un alga. Escúchalos y júntalos.</p>
+        <span class="gesto">Gatillo, pellizco o clic × 3</span>
+      </article>
+      <article class="momento">
+        <span class="num">II · TRÁNSITO · ~2 min</span>
+        <h2>Habitar el tiempo<span>El paisaje geológico evoluciona</span></h2>
+        <p>Roca volcánica, líquenes pioneros, suelo, musgo y bosque. Doce mil años crecen a tu alrededor.</p>
+        <span class="gesto">Mira alrededor · mantén el gatillo para acelerar</span>
+      </article>
+      <article class="momento">
+        <span class="num">III · REVELACIÓN · ~2 min</span>
+        <h2>Activar la red<span>Movimiento y respiración</span></h2>
+        <p>Tu respiración y tus gestos envían ondas de luz por la red de líquenes y hongos.</p>
+        <span class="gesto">Exhala · mueve las manos</span>
+      </article>
+    </section>
+
+    <section class="prep">
+      <div>
+        <div class="eyebrow">Antes de entrar</div>
+        <ul>
+          <li><b>Sonido</b><span>Usa audífonos. El sonido es espacial: gira la cabeza hacia lo que escuchas.</span></li>
+          <li><b>Espacio</b><span>Puedes estar de pie o sentado. No necesitas caminar; basta un espacio libre para mover los brazos.</span></li>
+          <li><b>Gesto</b><span>Gatillo del control, pellizco con la mano o clic en el navegador. Un panel frente a ti indica siempre qué hacer.</span></li>
+          <li><b>Navegador</b><span>Clic derecho y arrastrar para mirar, WASD para moverte, clic izquierdo para el gesto. Las teclas 1, 2 y 3 saltan entre momentos.</span></li>
+        </ul>
+      </div>
+      <div>
+        <label class="mic" for="usarMic">
+          <input type="checkbox" id="usarMic" checked />
+          <span
+            >Usar el micrófono para la respiración
+            <small>Al exhalar cerca del micrófono la red se enciende. Si no está disponible, mantén el gatillo mientras exhalas.</small></span
+          >
+        </label>
+        <div id="entrar">
+          <div id="xrSlot"></div>
+          <button type="button" class="XRButton secundario" id="btnNavegador" disabled>Explorar en el navegador</button>
+          <span class="estado" id="estado">Preparando el bosque…</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pie">
+      <span>Xanthoria · Pseudocyphellaria · Sticta · Usnea</span>
+      <span>Hecho con XR Blocks + three.js</span>
+    </footer>
+  </div>
+</div>
+<div id="hudDesk" hidden>Clic derecho + arrastrar: mirar · WASD: moverte · Clic: gesto · Mantén clic: acelerar / exhalar · 1 2 3: momentos</div>
+
+<script type="module">
+  import * as THREE from 'three';
+  import * as xb from 'xrblocks';
+
+  /* ==========================================================
+     Utilidades
+     ========================================================== */
+  const TAU = Math.PI * 2;
+  // ?velocidad=3 acelera toda la experiencia (útil para ensayar o montar en sala)
+  const VELOCIDAD = clampVel(parseFloat(new URLSearchParams(location.search).get('velocidad')) || 1);
+  function clampVel(v) {
+    return Math.min(8, Math.max(0.25, v));
+  }
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smooth = (a, b, x) => {
+    const t = clamp((x - a) / (b - a));
+    return t * t * (3 - 2 * t);
+  };
+  let seed = 7;
+  const rnd = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  const rr = (a, b) => a + (b - a) * rnd();
+
+  /* ==========================================================
+     Audio procedural (Web Audio): drone, organismos espaciales,
+     lluvia, aves, campanas. Todo generado, sin archivos.
+     ========================================================== */
+  class Sonido {
+    constructor() {
+      this.ctx = null;
+      this.mic = null;
+      this.micLevel = 0;
+      this.micFloor = 0.02;
+      this.micActivo = false;
+    }
+    async iniciar(conMic) {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AC();
+        this._construir();
+      }
+      if (this.ctx.state !== 'running') {
+        try {
+          await this.ctx.resume();
+        } catch (e) {}
+      }
+      if (conMic && !this.mic) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {echoCancellation: false, noiseSuppression: false, autoGainControl: false},
+          });
+          const src = this.ctx.createMediaStreamSource(stream);
+          const hp = this.ctx.createBiquadFilter();
+          hp.type = 'highpass';
+          hp.frequency.value = 120;
+          this.analyser = this.ctx.createAnalyser();
+          this.analyser.fftSize = 1024;
+          src.connect(hp).connect(this.analyser);
+          this.micBuf = new Float32Array(this.analyser.fftSize);
+          this.mic = stream;
+          this.micActivo = true;
+        } catch (e) {
+          this.micActivo = false;
+        }
+      }
+    }
+    _ruido(tipo = 'brown', seg = 4) {
+      const c = this.ctx;
+      const buf = c.createBuffer(1, c.sampleRate * seg, c.sampleRate);
+      const d = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < d.length; i++) {
+        const w = Math.random() * 2 - 1;
+        if (tipo === 'brown') {
+          last = (last + 0.02 * w) / 1.02;
+          d[i] = last * 3.5;
+        } else d[i] = w;
+      }
+      return buf;
+    }
+    _construir() {
+      const c = this.ctx;
+      this.master = c.createGain();
+      this.master.gain.value = 0.9;
+      const comp = c.createDynamicsCompressor();
+      comp.threshold.value = -18;
+      this.master.connect(comp).connect(c.destination);
+
+      // Reverb de bosque
+      this.reverb = c.createConvolver();
+      const len = c.sampleRate * 3.2;
+      const ir = c.createBuffer(2, len, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = ir.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+      }
+      this.reverb.buffer = ir;
+      this.revGain = c.createGain();
+      this.revGain.gain.value = 0.55;
+      this.reverb.connect(this.revGain).connect(this.master);
+
+      // Drone de tierra
+      this.drone = c.createGain();
+      this.drone.gain.value = 0;
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 260;
+      this.droneFilter = lp;
+      [55, 82.41, 110.3].forEach((f, i) => {
+        const o = c.createOscillator();
+        o.type = i === 1 ? 'triangle' : 'sine';
+        o.frequency.value = f;
+        o.detune.value = (i - 1) * 4;
+        const g = c.createGain();
+        g.gain.value = [0.5, 0.22, 0.12][i];
+        const lfo = c.createOscillator();
+        lfo.frequency.value = 0.05 + i * 0.03;
+        const lg = c.createGain();
+        lg.gain.value = 0.08;
+        lfo.connect(lg).connect(g.gain);
+        o.connect(g).connect(lp);
+        o.start();
+        lfo.start();
+      });
+      lp.connect(this.drone).connect(this.master);
+      this.drone.connect(this.reverb);
+
+      // Ruido: viento / lluvia
+      const nsrc = c.createBufferSource();
+      nsrc.buffer = this._ruido('white', 3);
+      nsrc.loop = true;
+      this.lluviaF = c.createBiquadFilter();
+      this.lluviaF.type = 'bandpass';
+      this.lluviaF.frequency.value = 2400;
+      this.lluviaF.Q.value = 0.4;
+      this.lluvia = c.createGain();
+      this.lluvia.gain.value = 0;
+      nsrc.connect(this.lluviaF).connect(this.lluvia).connect(this.master);
+      nsrc.start();
+
+      const bsrc = c.createBufferSource();
+      bsrc.buffer = this._ruido('brown', 4);
+      bsrc.loop = true;
+      this.viento = c.createGain();
+      this.viento.gain.value = 0;
+      const vf = c.createBiquadFilter();
+      vf.type = 'lowpass';
+      vf.frequency.value = 500;
+      this.vientoF = vf;
+      bsrc.connect(vf).connect(this.viento).connect(this.master);
+      bsrc.start();
+
+      // Voces de los dos organismos (espaciales)
+      this.voces = {};
+      this.voces.hongo = this._voz([73.42, 110.0, 146.8], 'triangle', 380);
+      this.voces.alga = this._voz([587.3, 880, 1174.7], 'sine', 2600, true);
+    }
+    _voz(freqs, tipo, corte, tremolo = false) {
+      const c = this.ctx;
+      const panner = c.createPanner();
+      panner.panningModel = 'HRTF';
+      panner.distanceModel = 'inverse';
+      panner.refDistance = 0.6;
+      panner.rolloffFactor = 1.2;
+      const g = c.createGain();
+      g.gain.value = 0;
+      const f = c.createBiquadFilter();
+      f.type = 'lowpass';
+      f.frequency.value = corte;
+      const oscs = freqs.map((fr, i) => {
+        const o = c.createOscillator();
+        o.type = tipo;
+        o.frequency.value = fr;
+        o.detune.value = rr(-6, 6);
+        const og = c.createGain();
+        og.gain.value = 0.16 / (i + 1);
+        if (tremolo) {
+          const l = c.createOscillator();
+          l.frequency.value = 3 + i * 1.7;
+          const lg = c.createGain();
+          lg.gain.value = 0.06 / (i + 1);
+          l.connect(lg).connect(og.gain);
+          l.start();
+        }
+        o.connect(og).connect(f);
+        o.start();
+        return o;
+      });
+      f.connect(g).connect(panner);
+      panner.connect(this.master);
+      panner.connect(this.reverb);
+      return {panner, gain: g, filter: f, oscs};
+    }
+    situar(voz, v) {
+      if (!this.ctx) return;
+      const p = this.voces[voz].panner;
+      const t = this.ctx.currentTime;
+      if (p.positionX) {
+        p.positionX.setTargetAtTime(v.x, t, 0.05);
+        p.positionY.setTargetAtTime(v.y, t, 0.05);
+        p.positionZ.setTargetAtTime(v.z, t, 0.05);
+      } else p.setPosition(v.x, v.y, v.z);
+    }
+    oyente(pos, fwd, up) {
+      if (!this.ctx) return;
+      const L = this.ctx.listener;
+      const t = this.ctx.currentTime;
+      if (L.positionX) {
+        L.positionX.setTargetAtTime(pos.x, t, 0.03);
+        L.positionY.setTargetAtTime(pos.y, t, 0.03);
+        L.positionZ.setTargetAtTime(pos.z, t, 0.03);
+        L.forwardX.setTargetAtTime(fwd.x, t, 0.03);
+        L.forwardY.setTargetAtTime(fwd.y, t, 0.03);
+        L.forwardZ.setTargetAtTime(fwd.z, t, 0.03);
+        L.upX.setTargetAtTime(up.x, t, 0.03);
+        L.upY.setTargetAtTime(up.y, t, 0.03);
+        L.upZ.setTargetAtTime(up.z, t, 0.03);
+      } else {
+        L.setPosition(pos.x, pos.y, pos.z);
+        L.setOrientation(fwd.x, fwd.y, fwd.z, up.x, up.y, up.z);
+      }
+    }
+    nivel(param, v, tau = 0.8) {
+      if (!this.ctx) return;
+      param.setTargetAtTime(v, this.ctx.currentTime, tau);
+    }
+    latido(fuerza = 1) {
+      if (!this.ctx) return;
+      const c = this.ctx;
+      const t = c.currentTime;
+      [0, 0.22].forEach((d, i) => {
+        const o = c.createOscillator();
+        o.frequency.setValueAtTime(70, t + d);
+        o.frequency.exponentialRampToValueAtTime(38, t + d + 0.25);
+        const g = c.createGain();
+        g.gain.setValueAtTime(0.0001, t + d);
+        g.gain.exponentialRampToValueAtTime(0.35 * fuerza * (i ? 0.6 : 1), t + d + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.4);
+        o.connect(g).connect(this.master);
+        g.connect(this.reverb);
+        o.start(t + d);
+        o.stop(t + d + 0.5);
+      });
+    }
+    campana(freq, vol = 0.25, dur = 3.5, destino = null) {
+      if (!this.ctx) return;
+      const c = this.ctx;
+      const t = c.currentTime;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      [1, 2.01, 3.98, 5.42].forEach((m, i) => {
+        const o = c.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = freq * m;
+        const og = c.createGain();
+        og.gain.value = [1, 0.4, 0.18, 0.08][i];
+        o.connect(og).connect(g);
+        o.start(t);
+        o.stop(t + dur + 0.1);
+      });
+      g.connect(destino || this.master);
+      g.connect(this.reverb);
+    }
+    acorde(base = 146.83) {
+      [1, 1.5, 2, 2.4, 3].forEach((m, i) => setTimeout(() => this.campana(base * m, 0.14, 6), i * 140));
+    }
+    retumbo(vol = 0.5) {
+      if (!this.ctx) return;
+      const c = this.ctx;
+      const t = c.currentTime;
+      const s = c.createBufferSource();
+      s.buffer = this._ruido('brown', 3);
+      const f = c.createBiquadFilter();
+      f.type = 'lowpass';
+      f.frequency.value = 90;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + 0.6);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+      s.connect(f).connect(g).connect(this.master);
+      s.start(t);
+      s.stop(t + 3);
+    }
+    // Canto breve parecido al chucao / hued-hued del sotobosque
+    ave(pan = 0) {
+      if (!this.ctx) return;
+      const c = this.ctx;
+      const t0 = c.currentTime;
+      const p = c.createStereoPanner();
+      p.pan.value = pan;
+      p.connect(this.master);
+      p.connect(this.reverb);
+      const notas = 3 + Math.floor(rnd() * 3);
+      for (let i = 0; i < notas; i++) {
+        const t = t0 + i * 0.16;
+        const o = c.createOscillator();
+        const f0 = 900 + rnd() * 300 - i * 60;
+        o.frequency.setValueAtTime(f0, t);
+        o.frequency.exponentialRampToValueAtTime(f0 * 0.62, t + 0.12);
+        const g = c.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.07, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+        o.connect(g).connect(p);
+        o.start(t);
+        o.stop(t + 0.16);
+      }
+    }
+    leerMic() {
+      if (!this.micActivo) return 0;
+      this.analyser.getFloatTimeDomainData(this.micBuf);
+      let s = 0;
+      for (let i = 0; i < this.micBuf.length; i++) s += this.micBuf[i] * this.micBuf[i];
+      const rms = Math.sqrt(s / this.micBuf.length);
+      // Suelo de ruido adaptativo
+      this.micFloor = rms < this.micFloor ? lerp(this.micFloor, rms, 0.05) : lerp(this.micFloor, rms, 0.0015);
+      this.micLevel = lerp(this.micLevel, rms, 0.25);
+      return clamp((this.micLevel - this.micFloor * 1.8 - 0.004) * 18);
+    }
+  }
+  const sonido = new Sonido();
+  const ESCALA = [146.83, 174.61, 196.0, 220.0, 261.63, 293.66, 349.23, 392.0, 440.0]; // D menor pentatónica
+
+  /* ==========================================================
+     Shaders compartidos: ruido, ondas de luz, niebla
+     ========================================================== */
+  const NUM_ONDAS = 12;
+  const U = {
+    uTime: {value: 0},
+    uWaves: {value: Array.from({length: NUM_ONDAS}, () => new THREE.Vector4(0, 0, -999, 0))},
+    uFogColor: {value: new THREE.Color(0x000000)},
+    uFogDensity: {value: 0.06},
+    uLightDir: {value: new THREE.Vector3(0.4, 0.8, 0.3).normalize()},
+    uLight: {value: new THREE.Color(0x000000)},
+    uAmbient: {value: new THREE.Color(0x020302)},
+    uLava: {value: 0},
+    uLichen: {value: 0},
+    uMoss: {value: 0},
+    uNet: {value: 0},
+    uNetColor: {value: new THREE.Color(0x8ff5cf)},
+  };
+
+  const GLSL_NOISE = /* glsl */ `
+    float hash(vec3 p){ p = fract(p*0.3183099+.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+    float vnoise(vec3 x){
+      vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
+      return mix(mix(mix(hash(i+vec3(0,0,0)),hash(i+vec3(1,0,0)),f.x),
+                     mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+                 mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),
+                     mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+    }
+    float fbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<4;i++){ s+=a*vnoise(p); p*=2.03; a*=0.5; } return s; }
+  `;
+  const GLSL_WAVES = /* glsl */ `
+    uniform vec4 uWaves[${NUM_ONDAS}];
+    uniform float uTime;
+    float waveAt(vec3 wp){
+      float s = 0.0;
+      for(int i=0;i<${NUM_ONDAS};i++){
+        vec4 w = uWaves[i];
+        float age = uTime - w.z;
+        if(age < 0.0 || age > 9.0) continue;
+        float d = length(wp.xz - w.xy);
+        float r = age * 2.6;
+        float ring = exp(-pow((d - r) / 0.55, 2.0));
+        s += ring * w.w * exp(-age * 0.32);
+      }
+      return s;
+    }
+  `;
+
+  function materialMundo({base = 0x1a1714, tipo = 0, escala = 1}) {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        ...U,
+        uBase: {value: new THREE.Color(base)},
+        uKind: {value: tipo},
+        uScale: {value: escala},
+      },
+      vertexShader: /* glsl */ `
+        varying vec3 vWp; varying vec3 vN;
+        void main(){
+          vec4 wp = modelMatrix * vec4(position,1.0);
+          vWp = wp.xyz; vN = normalize(mat3(modelMatrix) * normal);
+          gl_Position = projectionMatrix * viewMatrix * wp;
+        }`,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uBase, uFogColor, uLight, uAmbient, uLightDir, uNetColor;
+        uniform float uFogDensity, uLava, uLichen, uMoss, uNet, uKind, uScale;
+        varying vec3 vWp; varying vec3 vN;
+        ${GLSL_NOISE}
+        ${GLSL_WAVES}
+        void main(){
+          vec3 N = normalize(vN);
+          vec3 p = vWp * uScale;
+          float n = fbm(p * 1.7);
+          vec3 col = uBase * (0.55 + 0.7 * n);
+          if (uKind > 1.5) { // corteza: surcos verticales
+            float sur = vnoise(vec3(p.x*9.0, p.y*0.8, p.z*9.0));
+            col *= 0.6 + 0.6 * sur;
+          }
+          // Musgo sobre suelo y caras superiores de las rocas
+          float up = uKind < 0.5 ? 1.0 : smoothstep(0.15, 0.7, N.y);
+          float mossN = fbm(p * 0.45 + 3.0);
+          float moss = smoothstep(1.0 - uMoss * 1.1, 1.0 - uMoss * 1.1 + 0.25, mossN + 0.15) * up * uMoss;
+          if (uKind > 1.5) moss *= smoothstep(1.6, 0.2, vWp.y) * 0.8;
+          vec3 mossCol = mix(vec3(0.07,0.17,0.05), vec3(0.2,0.33,0.1), vnoise(p*6.0));
+          col = mix(col, mossCol, clamp(moss,0.0,1.0));
+          // Líquenes costrosos y foliosos: manchas que se expanden
+          float ln = fbm(p * 3.3 + 11.0);
+          float th = 1.02 - uLichen * 0.5;
+          float mancha = smoothstep(th, th + 0.035, ln) * (uKind < 0.5 ? 0.55 : 1.0);
+          float tono = vnoise(p * 1.3 + 5.0);
+          vec3 lichCol = tono < 0.38 ? vec3(0.86,0.5,0.15) : (tono < 0.7 ? vec3(0.6,0.68,0.52) : vec3(0.78,0.78,0.7));
+          float borde = smoothstep(th + 0.035, th + 0.11, ln);
+          lichCol *= 0.75 + 0.35 * borde;
+          col = mix(col, lichCol, mancha);
+          // Luz
+          float dif = max(dot(N, uLightDir), 0.0);
+          col = col * (uAmbient + uLight * dif);
+          // Grietas de lava que se enfrían
+          if (uKind < 1.5) {
+            float cr = 1.0 - smoothstep(0.0, 0.025, abs(fbm(vWp * 0.55) - 0.5));
+            float pul = 0.7 + 0.3 * sin(uTime * 1.3 + vWp.x);
+            col += vec3(1.0, 0.33, 0.06) * cr * uLava * pul * 1.4;
+          }
+          // Red: venas bioluminiscentes + ondas
+          float wave = waveAt(vWp);
+          float vena = 1.0 - smoothstep(0.0, 0.03, abs(fbm(vec3(vWp.x*0.8, vWp.y*0.5, vWp.z*0.8) + 20.0) - 0.5));
+          if (uKind > 1.5) vena = 1.0 - smoothstep(0.0, 0.05, abs(vnoise(vec3(vWp.x*4.0, vWp.y*0.6, vWp.z*4.0)) - 0.5));
+          float glow = vena * (uNet * 0.35 + wave * 1.6) + wave * 0.14 * step(uKind, 0.5);
+          glow += mancha * wave * 0.6;
+          col += uNetColor * glow;
+          // Niebla
+          float dist = length(vWp - cameraPosition);
+          float f = 1.0 - exp(-pow(uFogDensity * dist, 2.0));
+          col = mix(col, uFogColor, clamp(f,0.0,1.0));
+          gl_FragColor = vec4(col, 1.0);
+        }`,
+    });
+  }
+
+  /* ==========================================================
+     Panel de guía (texto en canvas, sigue la mirada con suavidad)
+     ========================================================== */
+  class Panel {
+    constructor() {
+      this.canvas = document.createElement('canvas');
+      this.canvas.width = 1200;
+      this.canvas.height = 620;
+      this.ctx = this.canvas.getContext('2d');
+      this.tex = new THREE.CanvasTexture(this.canvas);
+      this.tex.colorSpace = THREE.SRGBColorSpace;
+      this.tex.anisotropy = 4;
+      const mat = new THREE.MeshBasicMaterial({map: this.tex, transparent: true, depthTest: false, depthWrite: false, fog: false});
+      this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.96, 0.496), mat);
+      this.mesh.renderOrder = 999;
+      this.estado = {};
+      this.opacidad = 0;
+      this.objetivo = 1;
+      this.yaw = null;
+      this.ultimoCambio = 0;
+    }
+    set(e) {
+      const nuevo = JSON.stringify(e);
+      if (nuevo === this._ultimo) return;
+      const cambioTexto = e.titulo !== this.estado.titulo || e.cuerpo !== this.estado.cuerpo || e.accion !== this.estado.accion;
+      this._ultimo = nuevo;
+      this.estado = e;
+      if (cambioTexto) this.ultimoCambio = performance.now();
+      this.dibujar();
+    }
+    _wrap(txt, maxW) {
+      const c = this.ctx;
+      const out = [];
+      txt.split('\n').forEach((par) => {
+        let line = '';
+        par.split(' ').forEach((w) => {
+          const t = line ? line + ' ' + w : w;
+          if (c.measureText(t).width > maxW && line) {
+            out.push(line);
+            line = w;
+          } else line = t;
+        });
+        out.push(line);
+      });
+      return out;
+    }
+    dibujar() {
+      const c = this.ctx;
+      const W = this.canvas.width,
+        H = this.canvas.height;
+      const e = this.estado;
+      c.clearRect(0, 0, W, H);
+      // Fondo: lámina de humus translúcida
+      const r = 34;
+      c.beginPath();
+      c.roundRect(6, 6, W - 12, H - 12, r);
+      c.fillStyle = 'rgba(9,13,10,0.82)';
+      c.fill();
+      c.lineWidth = 2;
+      c.strokeStyle = 'rgba(201,214,176,0.22)';
+      c.stroke();
+      const x = 64;
+      let y = 86;
+      c.fillStyle = '#e39a3b';
+      c.font = '500 26px "IBM Plex Mono", monospace';
+      c.fillText((e.eyebrow || '').toUpperCase(), x, y);
+      y += 74;
+      c.fillStyle = '#dfe8cb';
+      c.font = 'italic 500 70px "Cormorant Garamond", Georgia, serif';
+      c.fillText(e.titulo || '', x, y);
+      y += 58;
+      c.fillStyle = 'rgba(214,224,196,0.9)';
+      c.font = '400 32px Karla, Arial, sans-serif';
+      this._wrap(e.cuerpo || '', W - 2 * x).slice(0, 4).forEach((l) => {
+        c.fillText(l, x, y);
+        y += 44;
+      });
+      // Acción
+      if (e.accion) {
+        y += 12;
+        c.font = '600 30px Karla, Arial, sans-serif';
+        const lines = this._wrap(e.accion, W - 2 * x - 90).slice(0, 2);
+        const bh = 30 + lines.length * 40;
+        c.beginPath();
+        c.roundRect(x - 6, y - 38, W - 2 * x + 12, bh, 22);
+        c.fillStyle = 'rgba(143,245,207,0.14)';
+        c.fill();
+        c.strokeStyle = 'rgba(143,245,207,0.55)';
+        c.stroke();
+        // ícono de gesto: círculo que late
+        c.beginPath();
+        c.arc(x + 30, y - 38 + bh / 2, 13, 0, TAU);
+        c.fillStyle = '#8ff5cf';
+        c.fill();
+        c.fillStyle = '#c8ffe9';
+        lines.forEach((l, i) => c.fillText(l, x + 64, y + i * 40));
+      }
+      // Pie: tres momentos
+      const fy = H - 58;
+      const nombres = ['I · Entrada', 'II · Tránsito', 'III · Revelación'];
+      const segW = (W - 2 * x - 24) / 3;
+      nombres.forEach((n, i) => {
+        const sx = x + i * (segW + 12);
+        const activo = i === e.momento;
+        const hecho = i < e.momento;
+        c.fillStyle = activo ? '#8ff5cf' : hecho ? 'rgba(201,214,176,0.75)' : 'rgba(201,214,176,0.32)';
+        c.font = (activo ? '500 ' : '400 ') + '22px "IBM Plex Mono", monospace';
+        c.fillText(n.toUpperCase(), sx, fy);
+        c.fillStyle = 'rgba(201,214,176,0.18)';
+        c.fillRect(sx, fy + 16, segW, 5);
+        const prog = hecho ? 1 : activo ? clamp(e.progreso || 0) : 0;
+        c.fillStyle = activo ? '#8ff5cf' : 'rgba(201,214,176,0.7)';
+        c.fillRect(sx, fy + 16, segW * prog, 5);
+      });
+      this.tex.needsUpdate = true;
+    }
+    actualizar(dt, cabeza, yawCabeza) {
+      if (this.yaw === null) this.yaw = yawCabeza;
+      // Solo se reubica cuando miras lejos (comodidad), luego se desliza
+      let d = yawCabeza - this.yaw;
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      if (Math.abs(d) > 0.55) this.moviendo = true;
+      if (this.moviendo) {
+        this.yaw += d * clamp(dt * 2.2);
+        if (Math.abs(d) < 0.05) this.moviendo = false;
+      }
+      const dist = 1.35;
+      const px = cabeza.x - Math.sin(this.yaw) * dist;
+      const pz = cabeza.z - Math.cos(this.yaw) * dist;
+      const py = cabeza.y - 0.4;
+      const k = clamp(dt * 3);
+      const m = this.mesh;
+      if (!this._init) {
+        m.position.set(px, py, pz);
+        this._init = true;
+      }
+      m.position.x = lerp(m.position.x, px, k);
+      m.position.y = lerp(m.position.y, py, k);
+      m.position.z = lerp(m.position.z, pz, k);
+      m.lookAt(cabeza.x, cabeza.y - 0.1, cabeza.z);
+      // Se atenúa tras leerse, vuelve al cambiar el texto
+      const desde = (performance.now() - this.ultimoCambio) / 1000;
+      const base = desde < 14 ? 1 : 0.45;
+      const meta = this.objetivo * base;
+      this.opacidad = lerp(this.opacidad, meta, clamp(dt * 2));
+      m.material.opacity = this.opacidad;
+      m.visible = this.opacidad > 0.01;
+    }
+  }
+
+  /* ==========================================================
+     Construcción del mundo
+     ========================================================== */
+  function texturaBrillo(color) {
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 128;
+    const c = cv.getContext('2d');
+    const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, color);
+    g.addColorStop(0.25, color.replace(/[\d.]+\)$/, '0.35)'));
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(cv);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  function sprite(color, escala) {
+    const s = new THREE.Sprite(
+      new THREE.SpriteMaterial({map: texturaBrillo(color), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false})
+    );
+    s.scale.setScalar(escala);
+    return s;
+  }
+
+  // Hifas del hongo: árbol ramificado de segmentos
+  function crearHifas(n = 520, radio = 0.32) {
+    const pos = [];
+    const orden = [];
+    const puntas = [{p: new THREE.Vector3(), d: new THREE.Vector3(0, 1, 0), o: 0}];
+    let total = 0;
+    while (total < n && puntas.length) {
+      const k = Math.floor(rnd() * puntas.length);
+      const t = puntas[k];
+      const d = t.d.clone().add(new THREE.Vector3(rr(-0.6, 0.6), rr(-0.6, 0.6), rr(-0.6, 0.6))).normalize();
+      const q = t.p.clone().addScaledVector(d, rr(0.015, 0.035));
+      if (q.length() > radio) {
+        puntas.splice(k, 1);
+        continue;
+      }
+      pos.push(t.p.x, t.p.y, t.p.z, q.x, q.y, q.z);
+      const o = t.o + 1;
+      orden.push(t.o, o);
+      t.p = q;
+      t.d = d;
+      t.o = o;
+      if (rnd() < 0.14) puntas.push({p: q.clone(), d: d.clone().applyAxisAngle(new THREE.Vector3(rnd(), rnd(), rnd()).normalize(), 1.1), o});
+      total++;
+    }
+    const maxO = Math.max(...orden);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('aOrden', new THREE.Float32BufferAttribute(orden.map((v) => v / maxO), 1));
+    const m = new THREE.ShaderMaterial({
+      uniforms: {uGrow: {value: 0}, uAlpha: {value: 1}, uColor: {value: new THREE.Color(0xfff1d6)}, uTime: U.uTime},
+      vertexShader: `attribute float aOrden; varying float vO; void main(){ vO=aOrden; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+      fragmentShader: `uniform float uGrow,uAlpha,uTime; uniform vec3 uColor; varying float vO;
+        void main(){ if(vO>uGrow) discard; float b = 0.55+0.45*sin(vO*40.0 - uTime*3.0); gl_FragColor=vec4(uColor*(0.6+0.6*b), uAlpha*(1.0-vO*0.5)); }`,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    return new THREE.LineSegments(g, m);
+  }
+
+  function crearAlga(n = 46) {
+    const geo = new THREE.SphereGeometry(0.022, 12, 8);
+    const mat = new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 1, fog: false});
+    const im = new THREE.InstancedMesh(geo, mat, n);
+    im.userData.celulas = [];
+    for (let i = 0; i < n; i++) {
+      const v = new THREE.Vector3(rr(-1, 1), rr(-1, 1), rr(-1, 1)).normalize().multiplyScalar(Math.cbrt(rnd()) * 0.15);
+      const s = rr(0.6, 1.4);
+      im.userData.celulas.push({v, s, f: rr(0, TAU)});
+      im.setColorAt(i, new THREE.Color().setHSL(rr(0.26, 0.36), 0.85, rr(0.45, 0.62)));
+    }
+    return im;
+  }
+
+  // Talo folioso de liquen: lóbulos ondulados en roseta
+  function crearTalo() {
+    const g = new THREE.Group();
+    const base = new THREE.IcosahedronGeometry(1, 3);
+    const p = base.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const v = new THREE.Vector3().fromBufferAttribute(p, i);
+      const a = Math.atan2(v.z, v.x);
+      const ond = 1 + 0.18 * Math.sin(a * 7) + 0.08 * Math.sin(a * 13 + v.y * 4);
+      v.x *= ond;
+      v.z *= ond;
+      v.y *= 0.22 + 0.1 * Math.sin(a * 5);
+      p.setXYZ(i, v.x, v.y, v.z);
+    }
+    base.computeVertexNormals();
+    const colores = [0x8f9e74, 0x7c8f63, 0xa3ad86, 0xc98a3a];
+    for (let i = 0; i < 9; i++) {
+      const m = new THREE.Mesh(base, new THREE.MeshStandardMaterial({color: colores[i % 4], roughness: 0.9, emissive: 0x1a2a12, emissiveIntensity: 0.6}));
+      const a = (i / 9) * TAU + rr(-0.2, 0.2);
+      const rad = i === 0 ? 0 : rr(0.05, 0.09);
+      m.position.set(Math.cos(a) * rad, rr(-0.01, 0.015), Math.sin(a) * rad);
+      m.scale.setScalar(i === 0 ? 0.07 : rr(0.045, 0.065));
+      m.rotation.y = a;
+      g.add(m);
+    }
+    return g;
+  }
+
+  function crearRoca(radio) {
+    const geo = new THREE.IcosahedronGeometry(radio, 2);
+    const p = geo.attributes.position;
+    const off = rr(0, 100);
+    for (let i = 0; i < p.count; i++) {
+      const v = new THREE.Vector3().fromBufferAttribute(p, i);
+      const n = 0.75 + 0.35 * Math.sin(v.x * 3.1 + off) * Math.cos(v.z * 2.7 + off) + 0.1 * Math.sin(v.y * 9 + off);
+      v.multiplyScalar(n);
+      v.y *= 0.62;
+      p.setXYZ(i, v.x, v.y, v.z);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  /* ==========================================================
+     Guion de la experiencia
+     ========================================================== */
+  const ETAPAS_TRANSITO = [
+    {
+      hasta: 0.24,
+      titulo: 'La roca desnuda',
+      cuerpo: 'Hace unos 12.000 años el hielo se retira. Queda basalto y ceniza de los volcanes del sur. Nada vive aquí todavía.',
+    },
+    {
+      hasta: 0.48,
+      titulo: 'Los pioneros',
+      cuerpo: 'Los líquenes llegan primero. Se aferran a la roca y la disuelven con ácidos, grano a grano. Así empieza el suelo.',
+    },
+    {
+      hasta: 0.7,
+      titulo: 'Suelo, musgo y helecho',
+      cuerpo: 'Sobre ese polvo mineral crecen musgos, hepáticas y helechos. La roca se vuelve tierra húmeda.',
+    },
+    {
+      hasta: 1.01,
+      titulo: 'El bosque valdiviano',
+      cuerpo: 'Coigües, ulmos y arrayanes. Más de 2.000 mm de lluvia al año. Y en cada rama, líquenes: barba de viejo, Sticta, Pseudocyphellaria.',
+    },
+  ];
+
+  class Simbiosis extends xb.Script {
+    init() {
+      this.reloj = 0;
+      this.fase = 'espera';
+      this.tFase = 0;
+      this.selecciones = 0;
+      this.mantenido = 0;
+      this.ondaIdx = 0;
+      this.tmp = new THREE.Vector3();
+      this.cabeza = new THREE.Vector3(0, 1.6, 0);
+      this.cabezaPrev = new THREE.Vector3(0, 1.6, 0);
+      this.manosPrev = [];
+      this.yaw = 0;
+
+      const escena = xb.core.scene;
+      this.niebla = new THREE.FogExp2(0x000000, 0.06);
+      escena.fog = this.niebla;
+
+      this.hemi = new THREE.HemisphereLight(0x9fb7a0, 0x0d0d08, 0);
+      this.sol = new THREE.DirectionalLight(0xfff1dc, 0);
+      this.sol.position.set(4, 10, 3);
+      this.add(this.hemi, this.sol);
+
+      // Mundo centrado en el visitante
+      this.mundo = new THREE.Group();
+      this.add(this.mundo);
+
+      // Cúpula de cielo
+      this.cielo = new THREE.Mesh(
+        new THREE.SphereGeometry(70, 32, 16),
+        new THREE.ShaderMaterial({
+          side: THREE.BackSide,
+          depthWrite: false,
+          fog: false,
+          uniforms: {uTop: {value: new THREE.Color(0)}, uBot: {value: new THREE.Color(0)}, uTime: U.uTime},
+          vertexShader: `varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+          fragmentShader: `uniform vec3 uTop,uBot; varying vec3 vP; void main(){ float h=clamp(normalize(vP).y*1.4+0.25,0.0,1.0); gl_FragColor=vec4(mix(uBot,uTop,h),1.0);}`,
+        })
+      );
+      this.cielo.renderOrder = -10;
+      this.add(this.cielo);
+
+      // Suelo
+      const sueloGeo = new THREE.PlaneGeometry(90, 90, 160, 160);
+      sueloGeo.rotateX(-Math.PI / 2);
+      const sp = sueloGeo.attributes.position;
+      for (let i = 0; i < sp.count; i++) {
+        const x = sp.getX(i),
+          z = sp.getZ(i);
+        const d = Math.hypot(x, z);
+        const h = (Math.sin(x * 0.35) * Math.cos(z * 0.3) * 0.35 + Math.sin(x * 0.11 + 1) * Math.cos(z * 0.13) * 1.4) * smooth(3, 14, d);
+        sp.setY(i, h);
+      }
+      sueloGeo.computeVertexNormals();
+      this.matSuelo = materialMundo({base: 0x221e1b, tipo: 0, escala: 1});
+      this.suelo = new THREE.Mesh(sueloGeo, this.matSuelo);
+      this.mundo.add(this.suelo);
+
+      // Rocas de basalto
+      this.matRoca = materialMundo({base: 0x2b2a29, tipo: 1, escala: 1.3});
+      this.rocas = [];
+      const rocaMadre = new THREE.Mesh(crearRoca(0.55), this.matRoca);
+      rocaMadre.position.set(0, 0.12, -1.55);
+      this.mundo.add(rocaMadre);
+      this.rocaMadre = rocaMadre;
+      this.rocas.push(rocaMadre);
+      for (let i = 0; i < 16; i++) {
+        const a = rr(0, TAU),
+          d = rr(2.4, 11);
+        if (d < 4 && Math.abs(Math.atan2(Math.sin(a + Math.PI / 2), Math.cos(a + Math.PI / 2))) < 0.5) continue;
+        const r = rr(0.3, 1.2) * (d > 6 ? 1.5 : 1);
+        const m = new THREE.Mesh(crearRoca(r), this.matRoca);
+        m.position.set(Math.cos(a) * d, r * 0.15, Math.sin(a) * d);
+        m.rotation.y = rr(0, TAU);
+        this.mundo.add(m);
+        this.rocas.push(m);
+      }
+
+      // Árboles (coigües, ulmos): troncos y copas
+      this.matTronco = materialMundo({base: 0x4a3b2e, tipo: 2, escala: 1});
+      this.arboles = [];
+      const matCopa = new THREE.MeshLambertMaterial({color: 0x1d3a1c, flatShading: true});
+      const matCopa2 = new THREE.MeshLambertMaterial({color: 0x2b4a22, flatShading: true});
+      this.matCopas = [matCopa, matCopa2];
+      const copaGeo = new THREE.IcosahedronGeometry(1, 1);
+      const usneaPos = [];
+      const usneaY = [];
+      let intentos = 0;
+      while (this.arboles.length < 24 && intentos++ < 400) {
+        const a = rr(0, TAU),
+          d = rr(3.6, 16);
+        const x = Math.cos(a) * d,
+          z = Math.sin(a) * d;
+        if (this.arboles.some((t) => Math.hypot(t.x - x, t.z - z) < 2.2)) continue;
+        if (Math.hypot(x, z + 1.55) < 2.6) continue;
+        const alto = rr(11, 20),
+          r = rr(0.28, 0.6);
+        const g = new THREE.Group();
+        g.position.set(x, -0.1, z);
+        const troncoGeo = new THREE.CylinderGeometry(r * 0.55, r, alto, 14, 6);
+        troncoGeo.translate(0, alto / 2, 0);
+        const tronco = new THREE.Mesh(troncoGeo, this.matTronco);
+        g.add(tronco);
+        // Raíces tablares
+        for (let k = 0; k < 4; k++) {
+          const raiz = new THREE.Mesh(new THREE.ConeGeometry(r * 0.9, 1.2, 6), this.matTronco);
+          const ra = (k / 4) * TAU + rr(-0.3, 0.3);
+          raiz.position.set(Math.cos(ra) * r * 0.7, 0.35, Math.sin(ra) * r * 0.7);
+          raiz.rotation.set(Math.sin(ra) * 0.5, 0, -Math.cos(ra) * 0.5);
+          g.add(raiz);
+        }
+        // Copas
+        const copas = new THREE.Group();
+        for (let k = 0; k < 5; k++) {
+          const c = new THREE.Mesh(copaGeo, this.matCopas[k % 2]);
+          c.position.set(rr(-2, 2), alto + rr(-2.5, 1.5), rr(-2, 2));
+          c.scale.set(rr(1.6, 2.8), rr(1, 1.7), rr(1.6, 2.8));
+          copas.add(c);
+        }
+        g.add(copas);
+        // Barba de viejo (Usnea) colgando de ramas bajas
+        for (let k = 0; k < 14; k++) {
+          const ua = rr(0, TAU),
+            ur = rr(r, 2.4);
+          const ux = x + Math.cos(ua) * ur,
+            uz = z + Math.sin(ua) * ur;
+          const uy = rr(alto * 0.45, alto - 2.6);
+          const largo = rr(0.5, 1.4);
+          let px = ux,
+            py = uy,
+            pz = uz;
+          for (let s = 0; s < 6; s++) {
+            const nx = px + rr(-0.04, 0.04),
+              ny = py - largo / 6,
+              nz = pz + rr(-0.04, 0.04);
+            usneaPos.push(px, py, pz, nx, ny, nz);
+            usneaY.push(uy, uy);
+            px = nx;
+            py = ny;
+            pz = nz;
+          }
+        }
+        g.scale.set(1, 0.001, 1);
+        g.visible = false;
+        this.mundo.add(g);
+        this.arboles.push({g, x, z, alto, r, retraso: rr(0, 0.45), copas});
+      }
+      const ug = new THREE.BufferGeometry();
+      ug.setAttribute('position', new THREE.Float32BufferAttribute(usneaPos, 3));
+      this.matUsnea = new THREE.ShaderMaterial({
+        uniforms: {...U, uAlpha: {value: 0}},
+        vertexShader: `varying vec3 vWp; void main(){ vec4 wp=modelMatrix*vec4(position,1.0); vWp=wp.xyz; gl_Position=projectionMatrix*viewMatrix*wp; }`,
+        fragmentShader: `uniform float uAlpha, uNet; uniform vec3 uNetColor, uFogColor; uniform float uFogDensity; varying vec3 vWp; ${GLSL_WAVES}
+          void main(){ float w = waveAt(vWp)*1.4 + uNet*0.25; vec3 c = vec3(0.68,0.74,0.6) * 0.55 + uNetColor * w;
+          float f = 1.0-exp(-pow(uFogDensity*length(vWp-cameraPosition),2.0)); c = mix(c,uFogColor,clamp(f*0.85,0.0,1.0));
+          gl_FragColor = vec4(c, uAlpha); }`,
+        transparent: true,
+        depthWrite: false,
+      });
+      this.usnea = new THREE.LineSegments(ug, this.matUsnea);
+      this.usnea.visible = false;
+      this.mundo.add(this.usnea);
+
+      // Helechos: frondas instanciadas
+      const fronda = new THREE.PlaneGeometry(0.16, 0.85, 1, 6);
+      fronda.translate(0, 0.425, 0);
+      const fp = fronda.attributes.position;
+      for (let i = 0; i < fp.count; i++) {
+        const y = fp.getY(i);
+        fp.setZ(i, (y * y) * 0.45);
+        fp.setX(i, fp.getX(i) * (1 - y / 1.1));
+      }
+      fronda.computeVertexNormals();
+      this.helechos = new THREE.InstancedMesh(fronda, new THREE.MeshLambertMaterial({color: 0x3f6b2a, side: THREE.DoubleSide}), 900);
+      this.datosHelecho = [];
+      let fi = 0;
+      for (let h = 0; h < 150 && fi < 900; h++) {
+        const a = rr(0, TAU),
+          d = rr(2, 15);
+        const x = Math.cos(a) * d,
+          z = Math.sin(a) * d;
+        if (Math.hypot(x, z + 1.55) < 1.1) continue;
+        const s = rr(0.6, 1.5);
+        for (let k = 0; k < 6 && fi < 900; k++, fi++) {
+          this.datosHelecho.push({x, z, rot: (k / 6) * TAU + rr(-0.2, 0.2), incl: rr(0.5, 0.95), s, retraso: rnd() * 0.6});
+        }
+      }
+      this.helechos.count = this.datosHelecho.length;
+      this.helechos.visible = false;
+      this.mundo.add(this.helechos);
+
+      // Partículas: esporas / ceniza
+      const NP = 900;
+      const pp = new Float32Array(NP * 3),
+        pr = new Float32Array(NP);
+      for (let i = 0; i < NP; i++) {
+        const a = rr(0, TAU),
+          d = Math.sqrt(rnd()) * 16;
+        pp[i * 3] = Math.cos(a) * d;
+        pp[i * 3 + 1] = rr(0, 10);
+        pp[i * 3 + 2] = Math.sin(a) * d;
+        pr[i] = rnd();
+      }
+      const pg = new THREE.BufferGeometry();
+      pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+      pg.setAttribute('aR', new THREE.BufferAttribute(pr, 1));
+      this.matPart = new THREE.ShaderMaterial({
+        uniforms: {...U, uColor: {value: new THREE.Color(0xd9e6c0)}, uAlpha: {value: 0.0}, uFall: {value: 0.05}, uSize: {value: 26}},
+        vertexShader: `attribute float aR; uniform float uFall, uSize; varying float vW; varying float vR; ${GLSL_WAVES}
+          void main(){ vec3 p = position; p.y = mod(p.y - uTime*uFall*(0.5+aR) , 10.0);
+            p.x += sin(uTime*0.3 + aR*20.0)*0.3; p.z += cos(uTime*0.25 + aR*13.0)*0.3;
+            vec4 wp = modelMatrix*vec4(p,1.0); vW = waveAt(wp.xyz); vR=aR;
+            vec4 mv = viewMatrix*wp; gl_PointSize = uSize*(0.4+aR)*(1.0+vW*1.5)/(-mv.z); gl_Position = projectionMatrix*mv; }`,
+        fragmentShader: `uniform vec3 uColor, uNetColor; uniform float uAlpha; varying float vW; varying float vR;
+          void main(){ vec2 c = gl_PointCoord-0.5; float a = smoothstep(0.5,0.0,length(c));
+            gl_FragColor = vec4(mix(uColor, uNetColor, clamp(vW,0.0,1.0)), a*uAlpha*(0.4+0.6*vR) + a*vW*0.8); }`,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      this.particulas = new THREE.Points(pg, this.matPart);
+      this.particulas.frustumCulled = false;
+      this.mundo.add(this.particulas);
+
+      // Lluvia
+      const NL = 1400;
+      const lp = new Float32Array(NL * 6);
+      for (let i = 0; i < NL; i++) {
+        const x = rr(-14, 14),
+          z = rr(-14, 14),
+          y = rr(0, 14);
+        lp.set([x, y, z, x + 0.02, y + 0.35, z], i * 6);
+      }
+      const lg = new THREE.BufferGeometry();
+      lg.setAttribute('position', new THREE.BufferAttribute(lp, 3));
+      this.matLluvia = new THREE.ShaderMaterial({
+        uniforms: {uTime: U.uTime, uAlpha: {value: 0}},
+        vertexShader: `uniform float uTime; void main(){ vec3 p=position; float o = fract(sin(dot(floor(p.xz*10.0),vec2(12.9,78.2)))*437.5)*14.0; p.y = mod(p.y - uTime*7.0 + o, 14.0); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}`,
+        fragmentShader: `uniform float uAlpha; void main(){ gl_FragColor=vec4(0.7,0.8,0.85,uAlpha);}`,
+        transparent: true,
+        depthWrite: false,
+      });
+      this.lluvia = new THREE.LineSegments(lg, this.matLluvia);
+      this.lluvia.frustumCulled = false;
+      this.lluvia.visible = false;
+      this.mundo.add(this.lluvia);
+
+      // Escenario de la Entrada: hongo + alga
+      this.escenario = new THREE.Group();
+      this.add(this.escenario);
+      this.hongo = new THREE.Group();
+      this.hifas = crearHifas();
+      this.hongo.add(this.hifas, sprite('rgba(255,236,200,0.9)', 0.7));
+      this.alga = new THREE.Group();
+      this.celulas = crearAlga();
+      this.alga.add(this.celulas, sprite('rgba(120,255,140,0.9)', 0.8));
+      this.escenario.add(this.hongo, this.alga);
+      // Hilo que los une
+      const NH = 70;
+      this.hilo = new THREE.Points(
+        new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(NH * 3), 3)),
+        new THREE.PointsMaterial({color: 0xbfffe0, size: 0.018, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false})
+      );
+      this.hilo.frustumCulled = false;
+      this.escenario.add(this.hilo);
+      this.talo = crearTalo();
+      this.talo.visible = false;
+      this.escenario.add(this.talo);
+      this.destello = sprite('rgba(220,255,235,1)', 0.01);
+      this.escenario.add(this.destello);
+
+      // Red de la Revelación: filamentos desde el visitante a cada roca y árbol, y tronco arriba
+      this.construirRed();
+
+      // Guía de respiración
+      this.anilloResp = new THREE.Mesh(
+        new THREE.RingGeometry(0.16, 0.175, 64),
+        new THREE.MeshBasicMaterial({color: 0x8ff5cf, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, fog: false})
+      );
+      this.add(this.anilloResp);
+
+      this.panel = new Panel();
+      this.add(this.panel.mesh);
+      this.panel.set({eyebrow: '', titulo: '', cuerpo: '', momento: 0});
+      this.panel.objetivo = 0;
+
+      // Nada de esta escena es un objetivo de rayo: el gesto es global (gatillo / pellizco / clic)
+      // y así evitamos raycasts costosos contra el suelo y la red cada cuadro.
+      this.traverse((o) => {
+        if (o !== this) o.raycast = () => {};
+      });
+      if (new URLSearchParams(location.search).has('debug')) window.simbiosis = this;
+      window.addEventListener('keydown', (e) => {
+        if (this.fase === 'espera') return;
+        if (e.key === '1') this.irA('entrada');
+        if (e.key === '2') this.irA('transito');
+        if (e.key === '3') this.irA('revelacion');
+      });
+      if (document.fonts) document.fonts.ready.then(() => this.panel.dibujar());
+    }
+
+    ocultarEntrada() {
+      this.hilo.material.opacity = 0;
+      this.hilo.visible = false;
+      this.destello.material.opacity = 0;
+      if (sonido.ctx) {
+        sonido.nivel(sonido.voces.hongo.gain.gain, 0, 1.5);
+        sonido.nivel(sonido.voces.alga.gain.gain, 0, 1.5);
+      }
+    }
+
+    construirRed() {
+      const pos = [],
+        dist = [];
+      const camino = (desde, hasta, d0, pasos = 22, alturaFinal = null) => {
+        let prev = desde.clone();
+        let acum = d0;
+        const perp = new THREE.Vector3(-(hasta.z - desde.z), 0, hasta.x - desde.x).normalize();
+        const fase = rr(0, TAU);
+        for (let i = 1; i <= pasos; i++) {
+          const t = i / pasos;
+          const p = desde.clone().lerp(hasta, t);
+          p.addScaledVector(perp, Math.sin(t * Math.PI * 3 + fase) * 0.35 * Math.sin(t * Math.PI));
+          p.y = alturaFinal === null ? 0.03 + this.alturaSuelo(p.x, p.z) : lerp(desde.y, hasta.y, t);
+          const seg = p.distanceTo(prev);
+          pos.push(prev.x, prev.y, prev.z, p.x, p.y, p.z);
+          dist.push(acum, acum + seg);
+          acum += seg;
+          prev = p;
+        }
+        return {fin: prev, d: acum};
+      };
+      const centro = new THREE.Vector3(0, 0.03, 0);
+      // Cada roca y árbol queda conectado; algunos se conectan entre sí
+      const nodos = [];
+      this.rocas.forEach((r) => nodos.push(new THREE.Vector3(r.position.x, 0.03, r.position.z)));
+      this.arboles.forEach((a) => nodos.push(new THREE.Vector3(a.x, 0.03, a.z)));
+      const finales = [];
+      nodos.forEach((n) => {
+        const res = camino(centro, n, 0, Math.max(8, Math.round(n.length() * 2)));
+        finales.push({n, d: res.d});
+      });
+      // Conexiones entre vecinos
+      finales.forEach((a, i) => {
+        let mejor = null,
+          md = 1e9;
+        finales.forEach((b, j) => {
+          if (i === j) return;
+          const d = a.n.distanceTo(b.n);
+          if (d < md) {
+            md = d;
+            mejor = b;
+          }
+        });
+        if (mejor && md < 7) camino(a.n, mejor.n, a.d, Math.round(md * 2));
+      });
+      // Subir por los troncos en espiral hasta la copa
+      this.arboles.forEach((a) => {
+        const base = finales.find((f) => f.n.x === a.x && f.n.z === a.z);
+        let d = base ? base.d : 5;
+        let prev = new THREE.Vector3(a.x, 0.05, a.z);
+        const vueltas = rr(1.5, 3);
+        const N = 40;
+        for (let i = 1; i <= N; i++) {
+          const t = i / N;
+          const ang = t * vueltas * TAU;
+          const rad = a.r * (1 - t * 0.45) + 0.03;
+          const p = new THREE.Vector3(a.x + Math.cos(ang) * rad, t * a.alto * 0.85, a.z + Math.sin(ang) * rad);
+          const seg = p.distanceTo(prev);
+          pos.push(prev.x, prev.y, prev.z, p.x, p.y, p.z);
+          dist.push(d, d + seg);
+          d += seg;
+          prev = p;
+        }
+      });
+      this.maxDistRed = Math.max(...dist);
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setAttribute('aDist', new THREE.Float32BufferAttribute(dist, 1));
+      this.matRed = new THREE.ShaderMaterial({
+        uniforms: {...U, uAwake: {value: 0}, uAlpha: {value: 0}},
+        vertexShader: `attribute float aDist; varying float vD; varying vec3 vWp; void main(){ vD=aDist; vec4 wp=modelMatrix*vec4(position,1.0); vWp=wp.xyz; gl_Position=projectionMatrix*viewMatrix*wp; }`,
+        fragmentShader: `uniform float uAwake, uAlpha; uniform vec3 uNetColor; varying float vD; varying vec3 vWp; ${GLSL_WAVES}
+          void main(){
+            float frente = smoothstep(uAwake, uAwake - 2.5, vD);
+            float w = waveAt(vWp);
+            float pulso = 0.5 + 0.5*sin(vD*3.0 - uTime*4.0);
+            float b = frente*(0.22 + 0.25*pulso) + w*1.8;
+            if (b < 0.01) discard;
+            gl_FragColor = vec4(uNetColor*b + vec3(1.0)*w*0.3, uAlpha*clamp(b,0.0,1.0)); }`,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      this.red = new THREE.LineSegments(g, this.matRed);
+      this.red.frustumCulled = false;
+      this.red.visible = false;
+      this.mundo.add(this.red);
+    }
+
+    alturaSuelo(x, z) {
+      const d = Math.hypot(x, z);
+      return (Math.sin(x * 0.35) * Math.cos(z * 0.3) * 0.35 + Math.sin(x * 0.11 + 1) * Math.cos(z * 0.13) * 1.4) * smooth(3, 14, d);
+    }
+
+    /* ---------------- Ciclo de vida ---------------- */
+    onSimulatorStarted() {
+      // En escritorio sin VR, XR Blocks arranca el simulador detrás de la portada:
+      // la experiencia empieza solo cuando la persona pulsa el botón.
+      if (this.introCerrada) this.comenzar();
+    }
+    onXRSessionStarted() {
+      document.getElementById('hudDesk').hidden = true;
+      this.comenzar();
+    }
+    onXRSessionEnded() {
+      document.getElementById('intro').hidden = false;
+    }
+    comenzar() {
+      document.getElementById('intro').hidden = true;
+      document.getElementById('hudDesk').hidden = !!xb.core.renderer?.xr?.isPresenting;
+      sonido.iniciar(document.getElementById('usarMic').checked);
+      if (this.fase === 'espera' || this.fase === 'fin') this.irA('entrada');
+    }
+
+    centrarEnVisitante() {
+      const cam = xb.core.camera;
+      cam.getWorldPosition(this.cabeza);
+      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.getWorldQuaternion(new THREE.Quaternion()));
+      this.yaw = Math.atan2(-fwd.x, -fwd.z);
+      this.mundo.position.set(this.cabeza.x, 0, this.cabeza.z);
+      this.mundo.rotation.y = this.yaw;
+      this.escenario.position.set(this.cabeza.x, 0, this.cabeza.z);
+      this.escenario.rotation.y = this.yaw;
+      this.altOjos = this.cabeza.y > 0.6 ? this.cabeza.y : 1.6;
+      this.mundo.updateMatrixWorld(true);
+    }
+
+    irA(fase) {
+      this.fase = fase;
+      this.tFase = 0;
+      this.selecciones = 0;
+      this.ultimoGesto = 0;
+      if (fase === 'entrada') {
+        this.centrarEnVisitante();
+        this.union = 0;
+        this.unionVisual = 0;
+        this.fusionT = -1;
+        this.talo.visible = false;
+        this.hongo.visible = this.alga.visible = true;
+        this.hongo.scale.setScalar(1);
+        this.alga.scale.setScalar(1);
+        this.hifas.material.uniforms.uGrow.value = 0;
+        this.celulas.material.opacity = 0;
+        this.tiempoGeo = 0;
+        this.despertar = 0;
+        this.finalT = -1;
+        this.aplicarGeologia(0, true);
+        this.red.visible = false;
+        U.uNet.value = 0;
+        U.uWaves.value.forEach((w) => w.set(0, 0, -999, 0));
+        this.proximoLatido = 1.5;
+        this.anilloResp.material.opacity = 0;
+        this.matCopas.forEach((m) => m.emissive.setRGB(0, 0, 0));
+      }
+      if (fase !== 'entrada') this.ocultarEntrada();
+      else this.hilo.visible = true;
+      if (fase === 'transito') {
+        if (!this.talo.visible) {
+          // Llegada directa (atajo): dejar el liquen ya formado
+          this.talo.visible = true;
+          this.talo.scale.setScalar(1);
+          this.hongo.visible = this.alga.visible = false;
+        }
+        this.taloInicio = this.talo.position.clone();
+        this.tiempoGeo = 0;
+        this.etapaActual = -1;
+        sonido.retumbo(0.6);
+        sonido.campana(ESCALA[0], 0.2, 5);
+      }
+      if (fase === 'revelacion') {
+        this.aplicarGeologia(1, true);
+        this.hongo.visible = this.alga.visible = false;
+        this.talo.visible = true;
+        this.talo.position.set(0, 0.12 + 0.36, -1.55);
+        this.talo.scale.setScalar(1);
+        this.red.visible = true;
+        this.despertar = 0;
+        this.finalT = -1;
+        this.ultimaRespiracion = 0;
+        this.respGuia = 0;
+        sonido.acorde(146.83);
+      }
+    }
+
+    /* ---------------- Entrada de usuario ---------------- */
+    onSelectStart() {
+      this.mantenido++;
+      this.inicioMantenido = this.reloj;
+      if (sonido.ctx && sonido.ctx.state !== 'running') sonido.ctx.resume();
+    }
+    onSelectEnd() {
+      this.mantenido = Math.max(0, this.mantenido - 1);
+      this.ultimoGesto = this.tFase;
+      if (this.fase === 'entrada' && this.fusionT < 0 && this.tFase > 6) {
+        this.union = Math.min(3, this.union + 1);
+        sonido.campana(ESCALA[2 + this.union * 2], 0.22, 4);
+        sonido.latido(0.8);
+        if (this.union >= 3) this.fusionar();
+      } else if (this.fase === 'revelacion' && this.finalT > 8) {
+        this.irA('entrada');
+      }
+    }
+
+    fusionar() {
+      this.fusionT = 0;
+      sonido.acorde(110);
+    }
+
+    emitirOnda(x, z, fuerza) {
+      const w = U.uWaves.value[this.ondaIdx];
+      w.set(x, z, U.uTime.value, fuerza);
+      this.ondaIdx = (this.ondaIdx + 1) % NUM_ONDAS;
+      if (this.fase === 'revelacion') {
+        this.despertar = Math.min(1, this.despertar + fuerza * 0.028);
+        const nota = ESCALA[Math.floor(rnd() * ESCALA.length)] * (fuerza > 0.8 ? 0.5 : 1);
+        sonido.campana(nota, 0.06 + fuerza * 0.12, 3.5);
+      }
+    }
+
+    /* ---------------- Geología ---------------- */
+    aplicarGeologia(t, inmediato = false) {
+      // t: 0 roca desnuda → 1 bosque maduro
+      const lava = 1 - smooth(0.0, 0.3, t);
+      const liquen = smooth(0.18, 0.52, t);
+      const musgo = smooth(0.45, 0.72, t);
+      const bosque = smooth(0.66, 0.98, t);
+      U.uLava.value = t <= 0 && !inmediato ? 0 : lava * (this.fase === 'entrada' ? 0 : 1);
+      U.uLichen.value = liquen;
+      U.uMoss.value = musgo;
+      // Luz y cielo
+      const cielo = this.cielo.material.uniforms;
+      const cVolc = new THREE.Color(0x2a1610),
+        cGris = new THREE.Color(0x3b3d40),
+        cBosque = new THREE.Color(0x3d4f45);
+      const top = cVolc.clone().lerp(cGris, smooth(0.15, 0.5, t)).lerp(cBosque, bosque);
+      cielo.uTop.value.copy(top);
+      cielo.uBot.value.copy(top.clone().multiplyScalar(0.55));
+      U.uFogColor.value.copy(top.clone().multiplyScalar(0.8));
+      this.niebla.color.copy(U.uFogColor.value);
+      U.uFogDensity.value = lerp(0.045, 0.075, bosque);
+      this.niebla.density = U.uFogDensity.value * 0.9;
+      U.uLight.value.setRGB(0.9, 0.75, 0.6).lerp(new THREE.Color(0.55, 0.65, 0.5), bosque).multiplyScalar(0.85);
+      U.uAmbient.value.setRGB(0.12, 0.1, 0.09).lerp(new THREE.Color(0.12, 0.17, 0.12), bosque);
+      this.hemi.intensity = 1.1;
+      this.sol.intensity = 1.4 - bosque * 0.6;
+      // Árboles
+      this.arboles.forEach((a) => {
+        const k = smooth(a.retraso, a.retraso + 0.55, bosque);
+        a.g.visible = k > 0.002;
+        a.g.scale.set(lerp(0.3, 1, k), Math.max(0.001, k), lerp(0.3, 1, k));
+      });
+      this.usnea.visible = bosque > 0.5;
+      this.matUsnea.uniforms.uAlpha.value = smooth(0.6, 1, bosque) * 0.85;
+      // Helechos
+      this.helechos.visible = musgo > 0.01;
+      if (this.helechos.visible) {
+        const m = new THREE.Matrix4(),
+          q = new THREE.Quaternion(),
+          e = new THREE.Euler(),
+          s = new THREE.Vector3(),
+          p = new THREE.Vector3();
+        this.datosHelecho.forEach((h, i) => {
+          const k = smooth(h.retraso, h.retraso + 0.4, musgo);
+          e.set(0, h.rot, 0, 'YXZ');
+          e.x = -h.incl * k;
+          q.setFromEuler(e);
+          s.setScalar(Math.max(0.001, h.s * k));
+          p.set(h.x, this.alturaSuelo(h.x, h.z) - 0.02, h.z);
+          m.compose(p, q, s);
+          this.helechos.setMatrixAt(i, m);
+        });
+        this.helechos.instanceMatrix.needsUpdate = true;
+      }
+      // Partículas: ceniza → esporas
+      this.matPart.uniforms.uColor.value.setRGB(0.9, 0.55, 0.35).lerp(new THREE.Color(0.85, 0.9, 0.75), smooth(0.2, 0.5, t));
+      this.matPart.uniforms.uFall.value = lerp(0.25, 0.03, smooth(0.1, 0.45, t));
+      this.matPart.uniforms.uAlpha.value = lerp(0.65, 0.35, t);
+      // Lluvia
+      const lluvia = smooth(0.72, 0.85, t) * (1 - smooth(0.93, 1.0, t) * 0.6);
+      this.lluvia.visible = lluvia > 0.01;
+      this.matLluvia.uniforms.uAlpha.value = lluvia * 0.25;
+      sonido.nivel(sonido.lluvia?.gain || {setTargetAtTime() {}}, lluvia * 0.12, 1.2);
+      sonido.nivel(sonido.viento?.gain || {setTargetAtTime() {}}, 0.08 + bosque * 0.08, 1.5);
+    }
+
+    /* ---------------- Bucle ---------------- */
+    update() {
+      const ahora = performance.now() / 1000;
+      const dt = (this.ultimo ? Math.min(0.1, ahora - this.ultimo) : 0.016) * VELOCIDAD;
+      this.ultimo = ahora;
+      this.reloj += dt;
+      U.uTime.value = this.reloj;
+
+      const cam = xb.core.camera;
+      this.cabezaPrev.copy(this.cabeza);
+      cam.getWorldPosition(this.cabeza);
+      const q = cam.getWorldQuaternion(new THREE.Quaternion());
+      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(q);
+      const yawCabeza = Math.atan2(-fwd.x, -fwd.z);
+      sonido.oyente(this.cabeza, fwd, up);
+      this.cielo.position.copy(this.cabeza);
+
+      if (this.fase === 'espera') return;
+      this.tFase += dt;
+
+      if (this.fase === 'entrada') this.actualizarEntrada(dt);
+      else if (this.fase === 'transito') this.actualizarTransito(dt);
+      else if (this.fase === 'revelacion') this.actualizarRevelacion(dt, fwd);
+
+      this.panel.actualizar(dt, this.cabeza, yawCabeza);
+    }
+
+    actualizarEntrada(dt) {
+      const t = this.tFase;
+      const ojo = this.altOjos;
+      // Oscuridad total al inicio; el mundo es solo sonido
+      this.cielo.material.uniforms.uTop.value.setRGB(0, 0, 0);
+      this.cielo.material.uniforms.uBot.value.setRGB(0, 0, 0);
+      U.uFogColor.value.setRGB(0, 0, 0);
+      this.niebla.color.setRGB(0, 0, 0);
+      U.uFogDensity.value = 0.35;
+      U.uLight.value.setRGB(0.02, 0.025, 0.02);
+      U.uAmbient.value.setRGB(0.01, 0.012, 0.01);
+      this.hemi.intensity = 0.05;
+      this.sol.intensity = 0;
+      this.arboles.forEach((a) => (a.g.visible = false));
+      this.helechos.visible = this.usnea.visible = this.lluvia.visible = false;
+      this.matPart.uniforms.uAlpha.value = smooth(10, 25, t) * 0.25;
+      this.matPart.uniforms.uColor.value.setRGB(0.8, 0.9, 0.75);
+      this.matPart.uniforms.uFall.value = 0.02;
+
+      // Sonido
+      sonido.nivel(sonido.drone?.gain || {setTargetAtTime() {}}, smooth(0, 6, t) * 0.32, 1.5);
+      sonido.nivel(sonido.viento?.gain || {setTargetAtTime() {}}, 0.05, 2);
+      sonido.nivel(sonido.lluvia?.gain || {setTargetAtTime() {}}, 0, 1);
+      if (t > this.proximoLatido) {
+        sonido.latido(0.6 + this.union * 0.15);
+        this.proximoLatido = t + lerp(1.8, 1.1, this.union / 3);
+      }
+
+      // Posiciones: hongo a la izquierda, alga a la derecha; se acercan con cada gesto
+      this.unionVisual = lerp(this.unionVisual, this.union / 3, clamp(dt * 1.5));
+      const sep = lerp(0.95, 0.24, this.unionVisual);
+      const z = -1.55;
+      const bob = Math.sin(this.reloj * 0.7) * 0.03;
+      const aparicionH = smooth(7, 13, t);
+      const aparicionA = smooth(11, 17, t);
+      if (this.fusionT < 0) {
+        const giro = this.reloj * 0.25 * this.unionVisual;
+        this.hongo.position.set(-sep * Math.cos(giro), ojo + 0.02 + bob, z - sep * Math.sin(giro) * 0.4);
+        this.alga.position.set(sep * Math.cos(giro), ojo + 0.02 - bob, z + sep * Math.sin(giro) * 0.4);
+        this.hifas.material.uniforms.uGrow.value = aparicionH * (0.75 + 0.25 * this.unionVisual);
+        this.hongo.children[1].material.opacity = aparicionH * 0.3;
+        this.celulas.material.opacity = aparicionA;
+        this.alga.children[1].material.opacity = aparicionA * 0.35;
+        this.alga.scale.setScalar(Math.max(0.001, aparicionA));
+        this.hongo.rotation.y += dt * 0.15;
+        this.alga.rotation.y -= dt * 0.2;
+      }
+      // Células del alga respiran
+      const m = new THREE.Matrix4();
+      this.celulas.userData.celulas.forEach((c, i) => {
+        const s = c.s * (0.85 + 0.2 * Math.sin(this.reloj * 2.2 + c.f));
+        m.makeScale(s, s, s).setPosition(c.v);
+        this.celulas.setMatrixAt(i, m);
+      });
+      this.celulas.instanceMatrix.needsUpdate = true;
+
+      // Hilo de partículas entre ambos
+      const hp = this.hilo.geometry.attributes.position;
+      const a = this.hongo.position,
+        b = this.alga.position;
+      for (let i = 0; i < hp.count; i++) {
+        const u = ((((i / hp.count + this.reloj * 0.12 * (i % 2 ? 1 : -1)) % 1) + 1) % 1);
+        const x = lerp(a.x, b.x, u),
+          zz = lerp(a.z, b.z, u);
+        const y = lerp(a.y, b.y, u) + Math.sin(u * Math.PI) * 0.12 + Math.sin(u * 20 + this.reloj * 2 + i) * 0.012;
+        hp.setXYZ(i, x, y, zz);
+      }
+      hp.needsUpdate = true;
+      this.hilo.material.opacity = smooth(16, 20, t) * (0.25 + this.unionVisual * 0.75);
+
+      // Audio espacial de cada organismo
+      const wp = new THREE.Vector3();
+      if (sonido.ctx) {
+        this.hongo.getWorldPosition(wp);
+        sonido.situar('hongo', wp);
+        this.alga.getWorldPosition(wp);
+        sonido.situar('alga', wp);
+        const fus = this.fusionT >= 0 ? 1 - smooth(0, 5, this.fusionT) : 1;
+        sonido.nivel(sonido.voces.hongo.gain.gain, aparicionH * 0.9 * fus, 1);
+        sonido.nivel(sonido.voces.alga.gain.gain, aparicionA * 0.5 * fus, 1);
+      }
+
+      // Fusión: los dos se vuelven uno (liquen)
+      if (this.fusionT >= 0) {
+        this.fusionT += dt;
+        const f = smooth(0, 2.2, this.fusionT);
+        const centro = new THREE.Vector3(0, ojo + 0.0, z);
+        this.hongo.position.lerp(centro, clamp(dt * 3));
+        this.alga.position.lerp(centro, clamp(dt * 3));
+        this.hongo.scale.setScalar(Math.max(0.001, 1 - f * 0.7));
+        this.alga.scale.setScalar(Math.max(0.001, 1 - f * 0.8));
+        const fl = Math.sin(clamp(this.fusionT / 2.4) * Math.PI);
+        this.destello.position.copy(centro);
+        this.destello.scale.setScalar(0.01 + fl * 2.2);
+        this.destello.material.opacity = fl;
+        if (this.fusionT > 1.4) {
+          this.talo.visible = true;
+          this.talo.position.copy(centro);
+          this.talo.scale.setScalar(smooth(1.4, 3.5, this.fusionT));
+          this.talo.rotation.y += dt * 0.3;
+          this.hongo.visible = this.alga.visible = this.fusionT < 3;
+        }
+        this.hilo.material.opacity *= 1 - f;
+        if (this.fusionT > 13) this.irA('transito');
+      } else {
+        this.destello.material.opacity = 0;
+      }
+
+      // Ayuda progresiva si la persona no actúa
+      if (this.fusionT < 0 && t > 40 && t - this.ultimoGesto > 22) {
+        this.ultimoGesto = t;
+        this.union = Math.min(3, this.union + 1);
+        sonido.campana(ESCALA[2 + this.union * 2], 0.18, 4);
+        if (this.union >= 3) this.fusionar();
+      }
+
+      // Panel
+      let e;
+      if (t < 7) {
+        e = {titulo: 'Escuchar el origen', cuerpo: 'Antes del bosque hubo oscuridad, agua y roca. Quédate quieto un momento y escucha.', accion: 'Respira. Escucha a tu alrededor.'};
+      } else if (t < 17) {
+        e = {
+          titulo: 'Dos organismos',
+          cuerpo: 'A tu izquierda, un hongo: hilos blancos que buscan. A tu derecha, un alga: células verdes que capturan la luz.',
+          accion: 'Gira la cabeza hacia cada sonido.',
+        };
+      } else if (this.fusionT < 0) {
+        e = {
+          titulo: 'Se necesitan',
+          cuerpo: 'El hongo da refugio y agua. El alga da azúcar hecho de luz. Separados, apenas sobreviven.',
+          accion: `Presiona el gatillo, pellizca o haz clic para acercarlos (${this.union}/3)`,
+        };
+      } else {
+        e = {
+          titulo: 'Un liquen',
+          cuerpo: 'Hongo y alga ya son un solo cuerpo. Esta alianza es capaz de vivir sobre roca desnuda. Ahora verás lo que hace con el tiempo.',
+          accion: '',
+        };
+      }
+      const prog = this.fusionT >= 0 ? 0.75 + 0.25 * clamp(this.fusionT / 13) : clamp(t / 17) * 0.3 + (this.union / 3) * 0.45;
+      this.panel.objetivo = smooth(2, 4, t);
+      this.panel.set({eyebrow: 'I · Entrada', ...e, momento: 0, progreso: Math.round(prog * 40) / 40});
+    }
+
+    actualizarTransito(dt) {
+      const acelerando = this.mantenido > 0;
+      const DUR = 115;
+      this.tiempoGeo = Math.min(1, this.tiempoGeo + (dt / DUR) * (acelerando ? 3.5 : 1));
+      const tg = this.tiempoGeo;
+      U.uLava.value = 1;
+      this.aplicarGeologia(tg);
+      U.uLava.value = (1 - smooth(0.0, 0.3, tg)) * smooth(0, 3, this.tFase);
+      this.panel.objetivo = 1;
+
+      // El liquen desciende a la roca madre y se queda ahí
+      const destino = new THREE.Vector3(0, 0.12 + 0.36, -1.55);
+      const k = smooth(0, 6, this.tFase);
+      this.talo.position.lerpVectors(this.taloInicio, destino, k);
+      this.talo.scale.setScalar(1 + smooth(0.2, 0.5, tg) * 0.6);
+
+      // Sonido de cada era
+      sonido.nivel(sonido.drone?.gain || {setTargetAtTime() {}}, lerp(0.38, 0.18, tg), 2);
+      if (sonido.droneFilter) sonido.nivel(sonido.droneFilter.frequency, lerp(180, 700, tg), 2);
+      if (tg < 0.25 && Math.random() < dt * 0.08) sonido.retumbo(0.4);
+      if (tg > 0.75 && Math.random() < dt * 0.25) sonido.ave(rr(-0.9, 0.9));
+
+      const idx = ETAPAS_TRANSITO.findIndex((s) => tg < s.hasta);
+      if (idx !== this.etapaActual) {
+        this.etapaActual = idx;
+        sonido.campana(ESCALA[1 + idx], 0.15, 4);
+      }
+      const et = ETAPAS_TRANSITO[Math.max(0, idx)];
+      const anios = Math.round(lerp(12000, 0, tg) / 100) * 100;
+      this.panel.set({
+        eyebrow: anios > 0 ? `II · Tránsito · hace ${anios.toLocaleString('es-CL')} años` : 'II · Tránsito · hoy',
+        titulo: et.titulo,
+        cuerpo: et.cuerpo,
+        accion: acelerando ? 'Acelerando el tiempo… suelta para volver al ritmo natural' : 'Mira a tu alrededor. Mantén el gatillo para acelerar el tiempo.',
+        momento: 1,
+        progreso: Math.round(tg * 40) / 40,
+      });
+
+      if (tg >= 1) {
+        this.finTransito = (this.finTransito || 0) + dt;
+        if (this.finTransito > 4) {
+          this.finTransito = 0;
+          this.irA('revelacion');
+        }
+      }
+    }
+
+    actualizarRevelacion(dt, fwd) {
+      const t = this.tFase;
+      this.aplicarGeologia(1);
+      // La luz baja: anochece en el bosque para que la red se vea
+      const noche = smooth(0, 6, t);
+      const cielo = this.cielo.material.uniforms;
+      cielo.uTop.value.lerp(new THREE.Color(0x0a1418), noche);
+      cielo.uBot.value.lerp(new THREE.Color(0x03070a), noche);
+      U.uFogColor.value.lerp(new THREE.Color(0x050b0c), noche);
+      this.niebla.color.copy(U.uFogColor.value);
+      U.uLight.value.multiplyScalar(lerp(1, 0.14, noche));
+      U.uAmbient.value.multiplyScalar(lerp(1, 0.35, noche));
+      this.hemi.intensity = lerp(1.1, 0.18, noche);
+      this.sol.intensity = lerp(0.8, 0.05, noche);
+      this.lluvia.visible = false;
+      sonido.nivel(sonido.lluvia?.gain || {setTargetAtTime() {}}, 0.02, 2);
+      sonido.nivel(sonido.drone?.gain || {setTargetAtTime() {}}, 0.22, 2);
+
+      // Red: crece desde el visitante a medida que despierta
+      this.matRed.uniforms.uAlpha.value = noche;
+      this.matRed.uniforms.uAwake.value = 1.5 + this.despertar * (this.maxDistRed + 3);
+      U.uNet.value = this.despertar * 0.9;
+      this.matCopas.forEach((m) => {
+        m.emissive.setRGB(0.05, 0.25, 0.2).multiplyScalar(this.despertar * 0.6);
+      });
+
+      // ---- Respiración ----
+      const mic = sonido.leerMic();
+      const gatillo = this.mantenido > 0 ? 1 : 0;
+      const exhala = Math.max(mic > 0.15 ? mic : 0, gatillo);
+      this.respGuia += dt;
+      const ciclo = 10; // inhala 4 s · exhala 6 s
+      const fc = this.respGuia % ciclo;
+      const guiaExhala = fc > 4;
+      const radioGuia = guiaExhala ? lerp(1, 0.45, smooth(4, 10, fc)) : lerp(0.45, 1, smooth(0, 4, fc));
+      // Anillo de guía delante del pecho
+      const anillo = this.anilloResp;
+      const pos = this.cabeza.clone().addScaledVector(new THREE.Vector3(fwd.x, 0, fwd.z).normalize(), 0.9);
+      pos.y += 0.1;
+      anillo.position.lerp(pos, clamp(dt * 2));
+      anillo.lookAt(this.cabeza);
+      anillo.scale.setScalar(radioGuia * (1 + exhala * 0.25));
+      anillo.material.opacity = (this.finalT < 0 ? 0.65 : 0) * smooth(3, 6, t);
+      anillo.material.color.setHex(exhala > 0 ? 0xffffff : 0x8ff5cf);
+
+      this.acumResp = (this.acumResp || 0) + dt;
+      if (exhala > 0) {
+        this.ultimaRespiracion = t;
+        if (this.acumResp > 0.55) {
+          this.acumResp = 0;
+          this.emitirOnda(this.cabeza.x, this.cabeza.z, 0.55 + exhala * 0.6);
+        }
+      } else if (t - this.ultimaRespiracion > 14 && guiaExhala && this.acumResp > 1.4 && t > 8) {
+        // Si nadie respira hacia el sistema, la guía mantiene la red viva (más lento)
+        this.acumResp = 0;
+        this.emitirOnda(this.cabeza.x, this.cabeza.z, 0.6);
+      }
+
+      // ---- Movimiento: manos y cabeza ----
+      const ctrls = xb.core.user?.controllers || [];
+      const p = new THREE.Vector3();
+      ctrls.forEach((c, i) => {
+        if (!c || !c.visible) return;
+        c.getWorldPosition(p);
+        const prev = this.manosPrev[i];
+        if (prev) {
+          const v = p.distanceTo(prev) / Math.max(dt, 1e-3);
+          if (v > 0.7 && v < 8 && (!this['tm' + i] || this.reloj - this['tm' + i] > 0.3)) {
+            this['tm' + i] = this.reloj;
+            this.emitirOnda(p.x, p.z, clamp(v / 3, 0.3, 0.9));
+          }
+          prev.copy(p);
+        } else this.manosPrev[i] = p.clone();
+      });
+      const vCab = this.cabeza.distanceTo(this.cabezaPrev) / Math.max(dt, 1e-3);
+      if (vCab > 0.45 && vCab < 5 && (!this.tCab || this.reloj - this.tCab > 0.5)) {
+        this.tCab = this.reloj;
+        this.emitirOnda(this.cabeza.x, this.cabeza.z, 0.5);
+      }
+
+      // ---- Final ----
+      if (this.despertar >= 1 && this.finalT < 0) {
+        this.finalT = 0;
+        sonido.acorde(146.83);
+        setTimeout(() => sonido.acorde(196), 1800);
+      }
+      if (this.finalT >= 0) {
+        this.finalT += dt;
+        if (Math.random() < dt * 0.9) {
+          const a = rr(0, TAU),
+            d = rr(0, 10);
+          this.emitirOnda(this.cabeza.x + Math.cos(a) * d, this.cabeza.z + Math.sin(a) * d, 0.6);
+        }
+      }
+
+      let e;
+      const fuente = sonido.micActivo ? 'Exhala lento cerca del micrófono o mantén el gatillo' : 'Mantén el gatillo mientras exhalas';
+      if (this.finalT >= 0) {
+        e = {
+          titulo: 'Todo está conectado',
+          cuerpo:
+            'En el bosque valdiviano los líquenes fijan nitrógeno del aire y la lluvia, y alimentan el suelo que sostiene a los árboles. Hongo y alga, roca y árbol, tú y este lugar: una sola red.',
+          accion: this.finalT > 8 ? 'Presiona el gatillo para volver al origen.' : '',
+        };
+      } else if (t < 10) {
+        e = {
+          titulo: 'Activar la red',
+          cuerpo: 'Bajo tus pies, hifas y líquenes unen cada roca y cada árbol. Tu respiración y tus gestos pueden despertarla.',
+          accion: guiaExhala ? `Exhala… ${fuente.toLowerCase()}` : 'Inhala… sigue el anillo de luz',
+        };
+      } else {
+        e = {
+          titulo: guiaExhala ? 'Exhala' : 'Inhala',
+          cuerpo: `Cada exhalación envía una onda de luz por la red. Mueve las manos: cada gesto también la enciende. Red despierta: ${Math.round(this.despertar * 100)}%`,
+          accion: guiaExhala ? fuente : 'Inhala profundo, sigue el anillo de luz',
+        };
+      }
+      this.panel.objetivo = 1;
+      this.panel.set({eyebrow: 'III · Revelación', ...e, momento: 2, progreso: Math.round(this.despertar * 40) / 40});
+    }
+  }
+
+  /* ==========================================================
+     Arranque
+     ========================================================== */
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Desbloquea el audio con el mismo gesto que abre la experiencia
+    window.addEventListener(
+      'pointerdown',
+      () => {
+        sonido.iniciar(document.getElementById('usarMic').checked);
+      },
+      {capture: true}
+    );
+    const options = new xb.Options();
+    options.enableVR();
+    options.xrButton.enabled = true;
+    options.xrButton.startText = 'Entrar en VR';
+    options.xrButton.endText = 'Salir de VR';
+    options.xrButton.invalidText = 'Este navegador no tiene VR';
+    options.xrButton.startSimulatorText = 'Explorar en el navegador';
+    options.xrButton.showEnterSimulatorButton = false;
+    // Simulador sin la sala de estar por defecto: un claro vacío donde crece el bosque
+    const claro = {name: 'Claro del bosque', locations: {start: {description: 'Centro del claro', position: [0, 1.6, 0]}}};
+    options.simulator.environments = [{name: 'Claro del bosque', manifestPath: 'data:application/json,' + encodeURIComponent(JSON.stringify(claro))}];
+    options.simulator.activeEnvironmentIndex = 0;
+    options.simulator.instructions.showAutomatically = false;
+    options.xrButton.alwaysAutostartSimulator = false;
+    options.camera.far = 200;
+    const experiencia = new Simbiosis();
+    xb.add(experiencia);
+    const btn = document.getElementById('btnNavegador');
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      experiencia.introCerrada = true;
+      document.getElementById('intro').hidden = true;
+      try {
+        if (!xb.core.simulatorRunning) await xb.core.startSimulator();
+        experiencia.comenzar();
+      } catch (e) {
+        console.error(e);
+        document.getElementById('intro').hidden = false;
+        document.getElementById('estado').textContent = 'No se pudo abrir la vista de navegador.';
+        btn.disabled = false;
+      }
+    });
+    try {
+      await xb.init(options);
+      btn.disabled = false;
+      const vr = navigator.xr && (await navigator.xr.isSessionSupported('immersive-vr').catch(() => false));
+      document.getElementById('estado').textContent = vr
+        ? 'Listo. Entra con tu visor o explora en el navegador.'
+        : 'Este dispositivo no tiene VR: puedes explorar en el navegador. Para VR, abre esta página en el navegador de tu visor.';
+    } catch (e) {
+      console.error(e);
+      document.getElementById('estado').textContent = 'No se pudo cargar la escena: ' + (e && e.message ? e.message : e);
+    }
+    const mover = () => {
+      const w = document.getElementById('XRButtonWrapper');
+      if (w && w.parentElement !== document.getElementById('xrSlot')) document.getElementById('xrSlot').appendChild(w);
+    };
+    mover();
+    new MutationObserver(mover).observe(document.body, {childList: true});
+  });
+</script>
+</body>
+</html>
